@@ -9,9 +9,9 @@ const selectedFrame = ref(null);
 let stream = null;
 
 const frames = [
-  { id: 1, name: "Neon Glow", class: "border-8 border-blue-500 shadow-neon" },
-  { id: 2, name: "Pink Glow", class: "border-8 border-pink-500 shadow-pink-neon" },
-  { id: 3, name: "Gold Royal", class: "border-8 border-yellow-500 shadow-xl" },
+  { id: 1, name: "Neon Glow", class: "border-10 border-blue-500 shadow-neon" },
+  { id: 2, name: "Pink Glow", class: "border-10 border-pink-500 shadow-pink-neon" },
+  { id: 3, name: "Gold Royal", class: "border-10 border-yellow-500 shadow-xl" },
 ];
 
 // Start camera
@@ -79,22 +79,23 @@ const downloadPhoto = () => {
   const canvas = finalCanvasRef.value;
   const ctx = canvas.getContext("2d");
 
-  // Set dimensions (include extra space for the borders)
-  const borderWidth = 32; // Increased border thickness
+  // Set dimensions for image and borders
   const imgWidth = 512;
   const imgHeight = 512;
-  const canvasWidth = imgWidth + borderWidth * 2; // Include border space
-  const canvasHeight = imgHeight * 3 + borderWidth * 6; // Fix height calculation (3 images + 4 border spaces)
+  const outerBorder = 50; // Thicker blue border
+  const innerBorder = 30; // Thicker white border inside
+  const spacingBetween = 30; // More space between frames
+  const canvasWidth = imgWidth + outerBorder * 2; // Include blue border
+  const canvasHeight = (imgHeight + outerBorder * 2) * 3 + spacingBetween * 2; // Adjusted for all images
 
   canvas.width = canvasWidth;
   canvas.height = canvasHeight;
 
-  const frameColor =
-    selectedFrame.value.class.includes("border-yellow") ? "#FFD700" :
-    selectedFrame.value.class.includes("border-blue") ? "#00FFFF" :
-    selectedFrame.value.class.includes("border-pink") ? "#FF1493" : "#000";
+  // Define frame colors
+  const outerFrameColor = "#007BFF"; // Blue
+  const innerFrameColor = "#FFFFFF"; // White
 
-  // Load images before drawing
+  // Load all images
   const imagePromises = capturedPhotos.value.map((photo) => {
     return new Promise((resolve) => {
       const img = new Image();
@@ -104,28 +105,31 @@ const downloadPhoto = () => {
   });
 
   Promise.all(imagePromises).then((images) => {
-    let yPos = borderWidth; // Start with top border spacing
+    let yPos = 0; // Start at the top
 
-    images.forEach((image) => {
-      // Draw frame background
-      ctx.fillStyle = frameColor;
-      ctx.fillRect(0, yPos - borderWidth, canvasWidth, imgHeight + borderWidth * 2);
+    images.forEach((image, index) => {
+      // Outer blue frame (thicker)
+      ctx.fillStyle = outerFrameColor;
+      ctx.fillRect(0, yPos, canvasWidth, imgHeight + outerBorder * 2);
 
-      // Draw the image inside the frame with correct spacing
-      ctx.drawImage(image, borderWidth, yPos, imgWidth, imgHeight);
+      // Inner white frame (thicker)
+      ctx.fillStyle = innerFrameColor;
+      ctx.fillRect(outerBorder / 2, yPos + outerBorder / 2, canvasWidth - outerBorder, imgHeight + outerBorder);
 
-      // Move to next image position (accounting for border)
-      yPos += imgHeight + borderWidth * 2;
+      // Draw the actual image inside the white frame
+      ctx.drawImage(image, outerBorder + innerBorder / 2, yPos + outerBorder + innerBorder / 2, imgWidth - innerBorder, imgHeight - innerBorder);
+
+      // Move down for next image
+      yPos += imgHeight + outerBorder * 2 + spacingBetween;
     });
 
-    // Convert canvas to image and download
+    // Convert canvas to image and trigger download
     const link = document.createElement("a");
     link.href = canvas.toDataURL("image/png");
     link.download = "framed-photo.png";
     link.click();
   });
 };
-
 
 </script>
 
@@ -157,7 +161,7 @@ const downloadPhoto = () => {
 
         <div v-if="capturedPhotos.length > 0" class="mt-6">
           <h2 class="text-xl font-bold">Captured Photos:</h2>
-          <div class="flex gap-4 mt-2">
+          <div class="flex flex-wrap gap-4 mt-2">
             <img v-for="(photo, index) in capturedPhotos" :key="index" :src="photo" 
                  class="w-32 h-32 border-4 rounded-lg shadow-lg object-cover">
           </div>
@@ -182,14 +186,19 @@ const downloadPhoto = () => {
         </div>
 
         <div v-if="selectedFrame && capturedPhotos.length > 0" class="mt-8">
-          <h2 class="text-xl font-bold">Your Final Photo:</h2>
-          <div class="flex flex-col items-center mt-4">
-            <div v-for="(photo, index) in capturedPhotos" :key="index" class="relative">
-              <img :src="photo" class="w-64 h-auto border rounded-lg object-cover">
-              <div :class="'absolute inset-0 w-full h-full pointer-events-none ' + selectedFrame.class" style="z-index: 20;"></div>
-            </div>
-          </div>
-        </div>
+  <h2 class="text-xl font-bold">Your Final Photo:</h2>
+  <div class="flex flex-col items-center mt-4">
+    <div 
+      v-for="(photo, index) in capturedPhotos" 
+      :key="index" 
+      class="relative p-6 border-[32px] rounded-lg" 
+      :class="selectedFrame.class"
+    >
+      <img :src="photo" class="w-64 h-[200px] object-cover">
+    </div>
+  </div>
+</div>
+
 
         <canvas ref="finalCanvasRef" class="hidden"></canvas>
 
