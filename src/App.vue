@@ -82,18 +82,23 @@ const downloadPhoto = () => {
   // Set dimensions for image and borders
   const imgWidth = 512;
   const imgHeight = 512;
-  const outerBorder = 50; // Thicker blue border
-  const innerBorder = 30; // Thicker white border inside
-  const spacingBetween = 30; // More space between frames
-  const canvasWidth = imgWidth + outerBorder * 2; // Include blue border
-  const canvasHeight = (imgHeight + outerBorder * 2) * 3 + spacingBetween * 2; // Adjusted for all images
+  const outerBorder = 50; // Thicker outer border
+  const innerBorder = 30; // Thicker inner border
+  const spacingBetween = 30; // Space between frames
+  const canvasWidth = imgWidth + outerBorder * 2;
+  const canvasHeight = (imgHeight + outerBorder * 2) * 3 + spacingBetween * 2;
 
   canvas.width = canvasWidth;
   canvas.height = canvasHeight;
 
-  // Define frame colors
-  const outerFrameColor = "#007BFF"; // Blue
-  const innerFrameColor = "#FFFFFF"; // White
+  // Dynamically set frame color based on selected frame
+  const outerFrameColor =
+    selectedFrame.value.class.includes("border-yellow") ? "#FFD700" : // Gold
+    selectedFrame.value.class.includes("border-blue") ? "#00FFFF" : // Cyan
+    selectedFrame.value.class.includes("border-pink") ? "#FF1493" : // Deep Pink
+    "#000"; // Default to black if no match
+
+  const innerFrameColor = "#FFFFFF"; // White inner frame
 
   // Load all images
   const imagePromises = capturedPhotos.value.map((photo) => {
@@ -107,16 +112,16 @@ const downloadPhoto = () => {
   Promise.all(imagePromises).then((images) => {
     let yPos = 0; // Start at the top
 
-    images.forEach((image, index) => {
-      // Outer blue frame (thicker)
+    images.forEach((image) => {
+      // Outer frame (uses selected frame color)
       ctx.fillStyle = outerFrameColor;
       ctx.fillRect(0, yPos, canvasWidth, imgHeight + outerBorder * 2);
 
-      // Inner white frame (thicker)
+      // Inner white frame
       ctx.fillStyle = innerFrameColor;
       ctx.fillRect(outerBorder / 2, yPos + outerBorder / 2, canvasWidth - outerBorder, imgHeight + outerBorder);
 
-      // Draw the actual image inside the white frame
+      // Draw the image inside the frame
       ctx.drawImage(image, outerBorder + innerBorder / 2, yPos + outerBorder + innerBorder / 2, imgWidth - innerBorder, imgHeight - innerBorder);
 
       // Move down for next image
