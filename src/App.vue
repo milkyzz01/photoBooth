@@ -145,7 +145,7 @@ const downloadPhoto = () => {
         <p class="mt-2">Capture up to 3 photos.</p>
 
         <div class="relative flex justify-center items-center mt-6">
-          <video ref="videoRef" class="w-full max-w-md h-auto rounded-lg border-4 border-gray-400 shadow-lg" autoplay></video>
+          <video ref="videoRef" class="w-full max-w-md h-auto rounded-lg border-4 border-gray-400 shadow-lg" autoplay playsinline></video>
           <canvas ref="canvasRef" class="hidden"></canvas>
         </div>
 
