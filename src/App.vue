@@ -199,7 +199,7 @@ const downloadPhoto = () => {
       class="relative p-6 border-[32px] rounded-lg" 
       :class="selectedFrame.class"
     >
-      <img :src="photo" class="w-64 h-[200px] object-cover">
+      <img :src="photo" class="w-64 h-[200px]">
     </div>
   </div>
 </div>
