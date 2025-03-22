@@ -168,7 +168,7 @@ const downloadPhoto = () => {
           <h2 class="text-xl font-bold">Captured Photos:</h2>
           <div class="flex justify-center flex-wrap gap-4 mt-2">
             <img v-for="(photo, index) in capturedPhotos" :key="index" :src="photo" 
-                 class="w-32 h-32 border-4 rounded-lg shadow-lg object-cover">
+                 class="w-32 h-32 border-4 rounded-lg shadow-lg">
           </div>
         </div>
       </div>
